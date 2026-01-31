@@ -1,17 +1,33 @@
-import express from "express"
-import cors from "cors"
-import * as genai from "@google/genai"
+import express from "express";
+import cors from "cors";
+import OpenAI from "openai";
 
-console.log( genai )
+const PORT = process.env.PORT || 3_000;
 
-const PORT = process.env.PORT || 3_000
-const app = express()
+const app = express();
 
-app.use( cors() )
+app.use(cors());
 
-app.get( "/", ( req, res ) => {
+const client = new OpenAI({
+  apiKey: process.env.Openai_API_KEY,
+  baseURL: "http://api/groq.com.openai.v1",
+});
 
-	res.send( { ok: true } )
-} )
+console.log(client);
 
-app.listen( PORT, () => console.log( `Server ready at: ${ PORT }`) )
+app.get("/", (req, res) => {
+  res.send({ ok: true });
+});
+
+app.post("/prompt", async (req, res) => {
+  const { prompt } = req.body;
+
+  const response = await client.responses.create({
+    model: "openai/gpt-oss-20b",
+    input: prompt,
+  });
+
+  res.send({ answer: response.output_text });
+});
+
+app.listen(PORT, () => console.log(`Server ready at: ${PORT}`));
