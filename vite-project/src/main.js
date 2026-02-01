@@ -1,96 +1,122 @@
-import './style.css'
-import { markdown } from "markdown"
-
-const textarea = document.getElementById( "textarea" )
-const messages = document.getElementById( "messages" )
-const sendBtn = document.getElementById( "send-btn" )
-const themeToggle = document.getElementById( "theme-toggle" )
-const themeIcon = document.querySelector( ".theme-icon" )
+import "./style.css";
+import { markdown } from "markdown";
+const attachBtn = document.getElementById("attachBtn");
+const textarea = document.getElementById("textarea");
+const messages = document.getElementById("messages");
+const sendBtn = document.getElementById("send-btn");
+const themeToggle = document.getElementById("theme-toggle");
+const themeIcon = document.querySelector(".theme-icon");
+const imageUpload = document.getElementById("imageUpload");
 
 function handleSend() {
-	const text = textarea.value.trim()
-	if ( text ) {
-		createMessageItem( text, { type: "user" } )
-		sendPrompt( text )
-		textarea.value = ""
-		textarea.focus()
-	}
+  const text = textarea.value.trim();
+  if (text) {
+    createMessageItem(text, { type: "user" });
+    sendPrompt(text);
+    textarea.value = "";
+    textarea.focus();
+  }
 }
 
-textarea.onkeyup = event => {
-	if ( event.code === "Enter" && !event.shiftKey ) {
-		event.preventDefault()
-		handleSend()
-	}
-}
+textarea.onkeyup = (event) => {
+  if (event.code === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    handleSend();
+  }
+};
 
 sendBtn.onclick = () => {
-	handleSend()
-}
+  handleSend();
+};
 
-window.addEventListener( "keyup", event => {
-	if ( textarea.value.length === 0 && event.code.startsWith( "Key" ) ) {
-		textarea.value += event.key
-		textarea.focus()
-	}
-} )
-
+window.addEventListener("keyup", (event) => {
+  if (textarea.value.length === 0 && event.code.startsWith("Key")) {
+    textarea.value += event.key;
+    textarea.focus();
+  }
+});
+// Image upload - paperclip button
+attachBtn?.addEventListener("click", () => {
+  imageUpload?.click();
+});
 // Theme functionality
 function initTheme() {
-	const savedTheme = localStorage.getItem( "theme" ) || "light"
-	document.documentElement.setAttribute( "data-theme", savedTheme )
-	updateThemeIcon( savedTheme )
+  const savedTheme = localStorage.getItem("theme") || "light";
+  document.documentElement.setAttribute("data-theme", savedTheme);
+  updateThemeIcon(savedTheme);
 }
 
 function toggleTheme() {
-	const currentTheme = document.documentElement.getAttribute( "data-theme" )
-	const newTheme = currentTheme === "dark" ? "light" : "dark"
+  const currentTheme = document.documentElement.getAttribute("data-theme");
+  const newTheme = currentTheme === "dark" ? "light" : "dark";
 
-	document.documentElement.setAttribute( "data-theme", newTheme )
-	localStorage.setItem( "theme", newTheme )
-	updateThemeIcon( newTheme )
+  document.documentElement.setAttribute("data-theme", newTheme);
+  localStorage.setItem("theme", newTheme);
+  updateThemeIcon(newTheme);
 }
 
-function updateThemeIcon( theme ) {
-	themeIcon.textContent = theme === "dark" ? "☀️" : "🌙"
+function updateThemeIcon(theme) {
+  themeIcon.textContent = theme === "dark" ? "☀️" : "🌙";
 }
 
-themeToggle.onclick = toggleTheme
+themeToggle.onclick = toggleTheme;
 
 // Initialize theme on page load
-initTheme()
+initTheme();
 
-async function sendPrompt( promptText ) {
+async function sendPrompt(promptText) {
+  const response = await fetch("http://localhost:3000/prompt", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ prompt: promptText }),
+  });
 
-	const response = await fetch( "http://localhost:3000/prompt", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify( { prompt: promptText } )
-	} )
+  const json = await response.json();
 
-	const json = await response.json()
-
-	createMessageItem( json.answer, { type: "bot" } )
+  createMessageItem(json.answer, { type: "bot" });
 }
 
-function createMessageItem( message, options ) {
-	const li = document.createElement( "li" )
-	li.className = `message message-${options.type}`
+function createMessageItem(message, options) {
+  const li = document.createElement("li");
+  li.className = `message message-${options.type}`;
 
-	const content = document.createElement( "div" )
-	content.className = "message-content"
-	content.innerHTML = markdown.toHTML( message )
+  const content = document.createElement("div");
+  content.className = "message-content";
 
-	const label = document.createElement( "div" )
-	label.className = "message-label"
-	label.textContent = options.type === "user" ? "Siz" : "Bot"
+  if (options.isHtml) {
+    content.innerHTML = message;
+  } else {
+    content.innerHTML = markdown.toHTML(message);
+  }
 
-	li.appendChild( label )
-	li.appendChild( content )
-	messages.appendChild( li )
+  const label = document.createElement("div");
+  label.className = "message-label";
+  label.textContent = options.type === "user" ? "Siz" : "Bot";
 
-	// Scroll to bottom
-	li.scrollIntoView({ behavior: "smooth" })
+  li.appendChild(label);
+  li.appendChild(content);
+  messages.appendChild(li);
+
+  // Scroll to bottom
+  li.scrollIntoView({ behavior: "smooth" });
 }
+
+imageUpload?.addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("image", file);
+
+  const res = await fetch("http://localhost:3000/upload", {
+    method: "POST",
+    body: formData,
+  });
+  const data = await res.json();
+  createMessageItem(`<img src="http://localhost:3000${data.url}" />`, {
+    type: "user",
+    isHtml: true,
+  });
+});

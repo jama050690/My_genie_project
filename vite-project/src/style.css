@@ -4,6 +4,10 @@
   padding: 0;
 }
 
+.hidden {
+  display: none;
+}
+
 body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -162,12 +166,13 @@ body {
 }
 
 .input-wrapper {
+  position: relative;
   display: flex;
   gap: 10px;
-  align-items: flex-end;
+  align-items: center;
   background: #f8f9fa;
   border-radius: 25px;
-  padding: 8px;
+  padding: 10px;
   border: 2px solid #e0e0e0;
   transition: border-color 0.2s ease;
 }
@@ -175,19 +180,32 @@ body {
 .input-wrapper:focus-within {
   border-color: #667eea;
 }
+#attachBtn {
+  margin-left: 5px;
+  font-size: 18px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  align-self: flex-start;
+  margin-top: 13px;
+}
 
+#attachBtn:hover {
+  color: #667eea;
+}
 #textarea {
   flex: 1;
   border: none;
   outline: none;
   background: transparent;
   resize: none;
+  margin-top: 10px;
   min-height: 20px;
   max-height: 120px;
-  padding: 8px 12px;
+  padding: 0 12px;
   font-family: inherit;
   font-size: 14px;
-  line-height: 1.4;
+  line-height: 20px;
 }
 
 #textarea::placeholder {

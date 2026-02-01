@@ -2,6 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Chatbot</title>
@@ -31,11 +35,21 @@
 
         <div class="input-container">
           <div class="input-wrapper">
+            <i
+              id="attachBtn"
+              class="fa fa-paperclip cursor-pointer"
+            ></i>
+            <input
+              id="imageUpload"
+              type="file"
+              accept="image/png, image/jpeg,image/svg,image/webp,image/avif"
+              class="hidden"
+            />
             <textarea
               id="textarea"
               placeholder="Xabaringizni yozing..."
             ></textarea>
-            <button id="send-btn" class="send-button">Yuborish</button>
+            <button id="send-btn" class="send-button">Send</button>
           </div>
         </div>
       </div>

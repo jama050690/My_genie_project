@@ -9,14 +9,10 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "npm:rolldown-vite@7.2.5"
-  },
-  "pnpm": {
-    "overrides": {
-      "vite": "npm:rolldown-vite@7.2.5"
-    }
+    "vite": "^6.0.0"
   },
   "dependencies": {
     "markdown": "^0.5.0"
   }
 }
+

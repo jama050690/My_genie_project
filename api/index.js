@@ -1,43 +1,64 @@
-import express from "express"
-import cors from "cors"
-import OpenAI from "openai"
+import express from "express";
+import cors from "cors";
+import OpenAI from "openai";
+import path from "path";
+import multer from "multer";
 
-const PORT = process.env.PORT || 3_000
+const PORT = process.env.PORT || 3_000;
 
-const app = express()
+const app = express();
 
-app.use( express.json() )
+app.use(express.json());
 
-const client = new OpenAI( {
-	apiKey: process.env.GROQ_API_KEY,
-	baseURL: "https://api.groq.com/openai/v1",
-} )
+const client = new OpenAI({
+  apiKey: process.env.GROQ_API_KEY,
+  baseURL: "https://api.groq.com/openai/v1",
+});
 
-const context = []
+const context = [];
 
-app.use( cors() )
+app.use(cors());
 
-app.get( "/", ( req, res ) => {
+app.use("/uploads", express.static("uploads"));
 
-	res.send( { ok: true } )
-} )
+/* =======================
+   MULTER (AVATAR UPLOAD)
+======================= */
 
-app.post( "/prompt", async ( req, res ) => {
+const storage = multer.diskStorage({
+  destination: "uploads/",
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, Date.now() + ext);
+  },
+});
 
-	const { prompt } = req.body
+const upload = multer({ storage });
 
-	context.push( { role: "user", content: prompt } )
+app.post("/upload", upload.single("image"), (req, res) => {
+  res.json({ url: `/uploads/${req.file.filename}` });
+});
 
-	const response = await client.chat.completions.create( {
-		model: "openai/gpt-oss-20b",
-		messages: context,
-		max_tokens: 1024,
-	} )
+// reouter chat
+app.get("/", (req, res) => {
+  res.send({ ok: true });
+});
 
-	const assistantMessage = response.choices[0].message.content
-	context.push( { role: "assistant", content: assistantMessage } )
+app.post("/prompt", async (req, res) => {
+  const { prompt } = req.body;
 
-	res.send( { answer: assistantMessage } )
-} )
+  context.push({ role: "user", content: prompt });
 
-app.listen( PORT, () => console.log( `Server ready at: ${ PORT }`) )
+  const response = await client.chat.completions.create({
+    model: "openai/gpt-oss-20b",
+    messages: context,
+    max_tokens: 1024,
+  });
+
+  const assistantMessage = response.choices[0].message.content;
+  context.push({ role: "assistant", content: assistantMessage });
+
+  res.send({ answer: assistantMessage });
+});
+
+app.listen(PORT, () => console.log(`Server ready at: ${PORT}`));
