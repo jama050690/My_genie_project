@@ -3,6 +3,7 @@ import cors from "cors";
 import OpenAI from "openai";
 import path from "path";
 import multer from "multer";
+import fs from "fs";
 
 const PORT = process.env.PORT || 3_000;
 
@@ -59,6 +60,43 @@ app.post("/prompt", async (req, res) => {
   context.push({ role: "assistant", content: assistantMessage });
 
   res.send({ answer: assistantMessage });
+});
+app.post("/analyze-food", upload.single("image"), async (req, res) => {
+  try {
+    const imagePath = req.file.path;
+    const imageBase64 = fs.readFileSync(imagePath, { encoding: "base64" });
+
+    const response = await client.chat.completions.create({
+      model: "meta-llama/llama-4-scout-17b-16e-instruct",
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "Bu rasmda qanday maxsulotlar bor? Har bir mahsulot uchun taxminiy kaloriya miqdorini aytib ber. O'zbek tilida javob ber.",
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:image/jpeg;base64,${imageBase64}`,
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    fs.unlinkSync(imagePath);
+
+    res.json({
+      success: true,
+      result: response.choices[0].message.content,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Xatolik yuz berdi" });
+  }
 });
 
 app.listen(PORT, () => console.log(`Server ready at: ${PORT}`));

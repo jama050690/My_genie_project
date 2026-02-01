@@ -1,5 +1,6 @@
 import "./style.css";
 import { markdown } from "markdown";
+
 const attachBtn = document.getElementById("attachBtn");
 const textarea = document.getElementById("textarea");
 const messages = document.getElementById("messages");
@@ -110,13 +111,33 @@ imageUpload?.addEventListener("change", async (e) => {
   const formData = new FormData();
   formData.append("image", file);
 
-  const res = await fetch("http://localhost:3000/upload", {
+  // Rasmni yuklash
+  const uploadRes = await fetch("http://localhost:3000/upload", {
     method: "POST",
     body: formData,
   });
-  const data = await res.json();
-  createMessageItem(`<img src="http://localhost:3000${data.url}" />`, {
+  const uploadData = await uploadRes.json();
+  createMessageItem(`<img src="http://localhost:3000${uploadData.url}" />`, {
     type: "user",
     isHtml: true,
   });
+
+  // Ovqatni tahlil qilish
+  const analyzeFormData = new FormData();
+  analyzeFormData.append("image", file);
+
+  try {
+    const analyzeRes = await fetch("http://localhost:3000/analyze-food", {
+      method: "POST",
+      body: analyzeFormData,
+    });
+    const analyzeData = await analyzeRes.json();
+    if (analyzeData.success && analyzeData.result) {
+      createMessageItem(analyzeData.result, { type: "bot" });
+    } else {
+      createMessageItem(analyzeData.message || "Xatolik yuz berdi", { type: "bot" });
+    }
+  } catch (err) {
+    createMessageItem("Server bilan bog'lanishda xatolik", { type: "bot" });
+  }
 });
