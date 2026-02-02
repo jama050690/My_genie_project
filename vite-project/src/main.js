@@ -9,6 +9,42 @@ const themeToggle = document.getElementById("theme-toggle");
 const themeIcon = document.querySelector(".theme-icon");
 const imageUpload = document.getElementById("imageUpload");
 const BASE_URL = "http://localhost:3000";
+
+// User va conversation holati
+let currentUser = null;
+let currentConversation = null;
+
+// Foydalanuvchi va suhbatni yaratish/olish
+async function initSession() {
+  try {
+    // Foydalanuvchini yaratish yoki olish
+    const userRes = await fetch(`${BASE_URL}/users`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: "Mehmon",
+        email: "mehmon@example.com",
+      }),
+    });
+    currentUser = await userRes.json();
+
+    // Yangi suhbat yaratish
+    const convRes = await fetch(`${BASE_URL}/conversations`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: currentUser.id,
+        title: "Yangi suhbat",
+      }),
+    });
+    currentConversation = await convRes.json();
+  } catch (err) {
+    console.error("Session boshlashda xatolik:", err);
+  }
+}
+
+// Sahifa yuklanganda sessionni boshlash
+initSession();
 function handleSend() {
   const text = textarea.value.trim();
   if (text) {
@@ -66,12 +102,20 @@ themeToggle.onclick = toggleTheme;
 initTheme();
 
 async function sendPrompt(promptText) {
-  const response = await fetch(`${BASE_ERL}/prompt`, {
+  if (!currentConversation) {
+    createMessageItem("Server bilan bog'lanishda xatolik", { type: "bot" });
+    return;
+  }
+
+  const response = await fetch(`${BASE_URL}/prompt`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ prompt: promptText }),
+    body: JSON.stringify({
+      prompt: promptText,
+      conversation_id: currentConversation.id,
+    }),
   });
 
   const json = await response.json();
@@ -125,6 +169,9 @@ imageUpload?.addEventListener("change", async (e) => {
   // Ovqatni tahlil qilish
   const analyzeFormData = new FormData();
   analyzeFormData.append("image", file);
+  if (currentUser) {
+    analyzeFormData.append("user_id", currentUser.id);
+  }
 
   try {
     const analyzeRes = await fetch(`${BASE_URL}/analyze-food`, {

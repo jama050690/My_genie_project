@@ -228,9 +228,6 @@ app.post("/analyze-food", upload.single("image"), async (req, res) => {
       await saveFoodAnalysis(user_id, `/uploads/${req.file.filename}`, result);
     }
 
-    // Rasmni o'chirish (ixtiyoriy - saqlash ham mumkin)
-    fs.unlinkSync(imagePath);
-
     res.json({
       success: true,
       result: result,
