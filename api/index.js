@@ -30,9 +30,9 @@ const client = new OpenAI({
 
 app.use("/uploads", express.static("uploads"));
 
-/* =======================
+/*
    MULTER (FILE UPLOAD)
-======================= */
+ */
 
 const fileFilter = (req, file, cb) => {
   const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
@@ -53,9 +53,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage, fileFilter });
 
-/* =======================
+/*
    USER ROUTES
-======================= */
+ */
 
 app.post("/users", async (req, res) => {
   try {
@@ -81,9 +81,9 @@ app.get("/users/:id", async (req, res) => {
   }
 });
 
-/* =======================
+/* 
    CONVERSATION ROUTES
-======================= */
+*/
 
 app.post("/conversations", async (req, res) => {
   try {
@@ -116,9 +116,9 @@ app.get("/conversations/:id/messages", async (req, res) => {
   }
 });
 
-/* =======================
+/*
    CHAT / PROMPT
-======================= */
+ */
 
 app.get("/", (req, res) => {
   res.send({ ok: true });
@@ -156,9 +156,9 @@ app.post("/prompt", async (req, res) => {
   }
 });
 
-/* =======================
+/*
    FILE UPLOAD
-======================= */
+ */
 
 app.post("/upload", upload.single("image"), (req, res) => {
   if (!req.file) {
@@ -167,9 +167,9 @@ app.post("/upload", upload.single("image"), (req, res) => {
   res.json({ url: `/uploads/${req.file.filename}` });
 });
 
-/* =======================
+/*
    FOOD ANALYSIS
-======================= */
+*/
 
 app.post("/analyze-food", upload.single("image"), async (req, res) => {
   try {
@@ -251,9 +251,9 @@ app.get("/users/:userId/food-analyses", async (req, res) => {
   }
 });
 
-/* =======================
+/*
    SERVER START
-======================= */
+ */
 
 initDatabase()
   .then(() => {
