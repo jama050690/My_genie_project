@@ -74,7 +74,26 @@ app.post("/analyze-food", upload.single("image"), async (req, res) => {
           content: [
             {
               type: "text",
-              text: "Bu rasmda qanday maxsulotlar bor? Har bir mahsulot uchun taxminiy kaloriya miqdorini aytib ber. O'zbek tilida javob ber.",
+              text: `Avval rasmni tekshir:
+         Agar rasmda oziq-ovqat yoki mahsulotlarga oid aniq buyumlar bo'lsa,unda ularni aniqlab, har bir mahsulot uchun quyidagi formatda javob ber:
+  - Emoji + mahsulot nomi — 100 g
+  - Kaloriya
+  - Uglevod
+  - Oqsil
+  - Yog'
+  - Shakar/Glyukoza
+
+    Qoidalar:
+    - Jadval ishlatma
+    - Faqat ro'yxat ko'rinishida yoz
+    - Har bir mahsulot orasida bosh qator qoldir
+    - Javob o'zbek tilida bo'lsin
+    - Qiymatlar taxminiy bo'lishi mumkin
+
+    Agar rasm oziq-ovqat yoki mahsulotlarga OID BO'LMASA,
+    unda FAQAT quyidagi jumlani yoz va boshqa hech narsa qo'shma:
+
+   ❌ Uzr, bu rasmda mahsulotga oid narsalar aniqlanmadi. Iltimos, boshqa rasm yuboring.`,
             },
             {
               type: "image_url",

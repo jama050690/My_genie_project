@@ -152,6 +152,16 @@ body {
   display: block;
 }
 
+.message-content ul,
+.message-content ol {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.message-content li {
+  margin-bottom: 4px;
+}
+
 .message-user .message-content {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -159,7 +169,9 @@ body {
 }
 
 .message-bot .message-content {
+  width: 300px;
   background: white;
+  padding: 15px;
   color: #333;
   border: 1px solid #e0e0e0;
   border-bottom-left-radius: 6px;

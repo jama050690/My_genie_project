@@ -8,7 +8,7 @@ const sendBtn = document.getElementById("send-btn");
 const themeToggle = document.getElementById("theme-toggle");
 const themeIcon = document.querySelector(".theme-icon");
 const imageUpload = document.getElementById("imageUpload");
-
+const BASE_URL = "http://localhost:3000";
 function handleSend() {
   const text = textarea.value.trim();
   if (text) {
@@ -66,7 +66,7 @@ themeToggle.onclick = toggleTheme;
 initTheme();
 
 async function sendPrompt(promptText) {
-  const response = await fetch("http://localhost:3000/prompt", {
+  const response = await fetch(`${BASE_ERL}/prompt`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -112,12 +112,12 @@ imageUpload?.addEventListener("change", async (e) => {
   formData.append("image", file);
 
   // Rasmni yuklash
-  const uploadRes = await fetch("http://localhost:3000/upload", {
+  const uploadRes = await fetch(`${BASE_URL}/upload`, {
     method: "POST",
     body: formData,
   });
   const uploadData = await uploadRes.json();
-  createMessageItem(`<img src="http://localhost:3000${uploadData.url}" />`, {
+  createMessageItem(`<img src=${BASE_URL}${uploadData.url} />`, {
     type: "user",
     isHtml: true,
   });
@@ -127,7 +127,7 @@ imageUpload?.addEventListener("change", async (e) => {
   analyzeFormData.append("image", file);
 
   try {
-    const analyzeRes = await fetch("http://localhost:3000/analyze-food", {
+    const analyzeRes = await fetch(`${BASE_URL}/analyze-food`, {
       method: "POST",
       body: analyzeFormData,
     });
@@ -135,7 +135,9 @@ imageUpload?.addEventListener("change", async (e) => {
     if (analyzeData.success && analyzeData.result) {
       createMessageItem(analyzeData.result, { type: "bot" });
     } else {
-      createMessageItem(analyzeData.message || "Xatolik yuz berdi", { type: "bot" });
+      createMessageItem(analyzeData.message || "Xatolik yuz berdi", {
+        type: "bot",
+      });
     }
   } catch (err) {
     createMessageItem("Server bilan bog'lanishda xatolik", { type: "bot" });
