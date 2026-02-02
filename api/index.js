@@ -182,7 +182,7 @@ app.post("/analyze-food", upload.single("image"), async (req, res) => {
     const imageBase64 = fs.readFileSync(imagePath, { encoding: "base64" });
 
     const response = await client.chat.completions.create({
-      model: "llama-3.2-90b-vision-preview",
+      model: "meta-llama/llama-4-scout-17b-16e-instruct",
       messages: [
         {
           role: "user",
